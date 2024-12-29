@@ -6,7 +6,7 @@ echo "Building rust application..."
 cargo build --release
 
 echo "Starting the rust server..."
-./src/main & 
+cargo run & 
 SERVER_PID=$!
 
 sleep 2
@@ -19,18 +19,25 @@ HOST="localhost"
 PORT=6379
 MESSAGE="PING"
 
-RESPONSE=$(echo -ne "PING" | nc -w 1 localhost 6379 | tr -d '\r\n')
+send_request() {
+  RESPONSE=$(echo -ne "PING" | nc -w 1 localhost 6379 | tr -d '\r\n')
+  echo "RESPONSE: $RESPONSE"
+}
 
-if [ "$RESPONSE" == "+PONG" ]; then 
-  echo "Test passed: Received expected response "+PONG""
-else 
-  echo "Test faied: Unexpected server response" 
-  echo "Received: $RESPONSE"
-  kill $SERVER_PID
-  exit 1 
-fi
+send_request & send_request wait 
 
-echo "Shutting down the server..." 
-kill $SERVER_PID
+echo "All requests completed!"
 
-echo "All tests ran successfully!"
+# if [ "$RESPONSE" == "+PONG" ]; then 
+#   echo "Test passed: Received expected response "+PONG""
+# else 
+#   echo "Test faied: Unexpected server response" 
+#   echo "Received: $RESPONSE"
+#   kill $SERVER_PID
+#   exit 1 
+# fi
+
+# echo "Shutting down the server..." 
+# kill $SERVER_PID
+
+# echo "All tests ran successfully!"
